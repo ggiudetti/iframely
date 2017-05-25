@@ -10,14 +10,15 @@ module.exports = {
         "oembed-site",
         "oembed-author",
         "oembed-thumbnail",
-        "domain-icon"
+        "domain-icon",
+        "ig-likes"
     ],
 
     getMeta: function (og, oembed) {
-        
+
         return {
             title: og.title ? og.title.match(/([^•]+)/i)[0] : "Post on Instagram",
-            description: oembed.title
+            description: oembed.title,
         }
 
     },
@@ -34,7 +35,7 @@ module.exports = {
                 type: CONFIG.T.image,
                 rel: CONFIG.R.thumbnail,
                 width: Math.round(150 * aspect),
-                height: 150 
+                height: 150
             }, {
                 href: src + 'm',
                 type: CONFIG.T.image,
