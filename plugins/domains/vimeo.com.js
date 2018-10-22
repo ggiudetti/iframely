@@ -26,7 +26,7 @@ module.exports = {
 
         var params = querystring.parse(options.getProviderOptions('vimeo.get_params', '').replace(/^\?/, ''));
 
-        if (options.getProviderOptions('players.showinfo', false)) {
+        if (options.getProviderOptions('players.showinfo', false) || options.getProviderOptions(CONFIG.O.full, false)) {
             params.title = 1;
             params.byline = 1;
         }
@@ -38,7 +38,7 @@ module.exports = {
             href: "https://player.vimeo.com/video/" + oembed.video_id + qs,
             type: CONFIG.T.text_html,
             rel: [CONFIG.R.player, CONFIG.R.html5],
-            "aspect-ratio": oembed.width / oembed.height,
+            "aspect-ratio": oembed.thumbnail_width < oembed.thumnmail_height ? oembed.thumbnail_width / oembed.thubnail_height : oembed.width / oembed.height, // ex. portrait https://vimeo.com/216098214
             autoplay: "autoplay=1"
         }];
 
@@ -53,7 +53,22 @@ module.exports = {
             });
         }
 
+        if (!oembed.thumbnail_url) {
+            links.push({message: 'Password required for this video'});
+        }
+
         return links;
+    },
+
+    getData: function(url, oembedError, cb, options, whitelistRecord) {
+        // handle private videos, ex. https://vimeo.com/243312327, https://vimeo.com/channels/staffpicks/116307147
+        cb (null,
+            oembedError == 403 ? {
+                whitelistRecord: options.getWhitelistRecord(url, {exclusiveRel: 'oembed'}),
+                message: 'Because of its privacy settings, this video cannot be embedded'
+            } : null
+        );
+
     },
 
     tests: [{
@@ -63,6 +78,10 @@ module.exports = {
         {
             skipMixins: [
                 "oembed-description"
+            ]
+        }, {
+            skipMethods: [
+                "getData"
             ]
         }
     ]

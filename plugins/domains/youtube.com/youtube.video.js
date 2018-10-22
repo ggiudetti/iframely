@@ -11,7 +11,7 @@ module.exports = {
         /^https?:\/\/www\.youtube\.com\/embed\/([a-zA-Z0-9_-]+)/i,
         /^https?:\/\/www\.youtube\.com\/v\/([a-zA-Z0-9_-]+)/i,
         /^https?:\/\/www\.youtube\.com\/user\/[a-zA-Z0-9_-]+\/?\?v=([a-zA-Z0-9_-]+)/i,
-        /^https?:\/\/www\.youtube-nocookie\.com\/v\/([a-zA-Z0-9_-]+)/i
+        /^https?:\/\/www\.youtube-nocookie\.com\/(?:v|embed)\/([a-zA-Z0-9_-]+)/i
     ],
 
     mixins: ["domain-icon"],
@@ -160,12 +160,12 @@ module.exports = {
             params.enablejsapi = 1;
         }
 
-        if (options.getProviderOptions('players.showinfo', false)) {
+        if (options.getProviderOptions('players.showinfo', false) || options.getProviderOptions(CONFIG.O.full, false)) {
             params.showinfo = 1;
         }
 
         if (options.getProviderOptions('locale', false)) {
-            params.hl = options.getProviderOptions('locale', 'en_US');
+            params.hl = options.getProviderOptions('locale', 'en-US').replace('_', '-');
         }
 
         // Detect widescreen videos. YouTube API used to have issues with returing proper aspect-ratio.
@@ -195,17 +195,19 @@ module.exports = {
 
         if (youtube_video_gdata.embeddable) {
             var qs = querystring.stringify(params);
-            if (qs !== '') {qs = '?' + qs}        
+            if (qs !== '') {qs = '?' + qs}
+
+            var domain = /^https?:\/\/www\.youtube-nocookie\.com\//i.test(url) || options.getProviderOptions('youtube.nocookie', false) ? 'youtube-nocookie' : 'youtube';
 
             links.push({
-                href: 'https://www.youtube.com/embed/' + youtube_video_gdata.id + qs,
+                href: 'https://www.' + domain + '.com/embed/' + youtube_video_gdata.id + qs,
                 rel: [CONFIG.R.player, CONFIG.R.html5],
                 type: CONFIG.T.text_html,
                 "aspect-ratio": widescreen ? 16 / 9 : 4 / 3,
                 autoplay: "autoplay=1"
             }); 
         } else {
-            links.push({message: "Uploader of this video disabled embedding on other sites."});
+            links.push({message: (youtube_video_gdata.uploader || "Uploader of this video") +  " disabled embedding on other sites."});
         }
 
         if (youtube_video_gdata.thumbnails && youtube_video_gdata.thumbnails.maxres) {

@@ -15,7 +15,7 @@ module.exports = {
 
     getData: function (urlMatch, twitter) {
 
-        if (/^https?:\/\/www\.gannett\-cdn\.com\//i.test(twitter.image)) {
+        if (/^https?:\/\/\w+\.gannett\-cdn\.com\//i.test(twitter.image) || /^https?:\/\/videos\.usatoday\.net\//i.test(twitter.image) || /brightcove/i.test(twitter.image)) {
             return {
                 gannettVideo: {
                     id: urlMatch[2],
@@ -27,9 +27,9 @@ module.exports = {
 
     getLink: function (gannettVideo) {
         return {
-            href: 'https://www.' + gannettVideo.domain +'.com/videos/embed/' + gannettVideo.id + '/?fullsite=true',
+            href: 'https://uw-media.' + gannettVideo.domain +'.com/video/embed/' + gannettVideo.id + '/?placement=embed',
             rel: [CONFIG.R.player, CONFIG.R.html5],
-            type: CONFIG.T.maybe_text_html, // let validators check it, including ssl
+            accept: CONFIG.T.text_html, // let validators check it, including ssl            
             'aspect-ratio': 16/9,
             scrolling: 'no',
             autoplay: 'autoplay=1'
@@ -42,6 +42,7 @@ module.exports = {
         "http://www.usatoday.com/videos/news/nation/2016/07/29/87694100/",
         "http://www.usatoday.com/videos/life/people/2016/11/03/93261598/",
         "http://www.usatoday.com/videos/news/humankind/2016/09/20/90730062/",
+        "https://www.usatoday.com/videos/news/2018/07/03/white-house-twitter-account-attacks-senators-critical-ice/36581999/",
         "http://www.desertsun.com/media/cinematic/video/92390930/police-chief-quit-ignoring-red-flags/",
         "http://www.usatoday.com/videos/life/2016/11/09/93525560/",
         "http://www.usatoday.com/videos/news/politics/elections/2016/2016/11/09/93532206/",
@@ -55,7 +56,7 @@ module.exports = {
         "http://www.sctimes.com/videos/weather/2015/08/17/31839437/",
         "http://www.baxterbulletin.com/videos/news/local/2015/08/17/31843911/",
         "http://www.delmarvanow.com/videos/sports/high-school/2015/08/18/31933549/",
-        "http://www.courier-journal.com/videos/entertainment/2015/08/18/31920575/",
+        "https://www.courier-journal.com/videos/entertainment/2015/08/24/31920575/",
         "http://www.detroitnews.com/videos/sports/nfl/lions/2015/08/19/31954181/",
         "http://www.press-citizen.com/videos/news/education/k-12/2015/08/18/31959369/",
         "http://www.tennessean.com/videos/entertainment/2015/08/18/31958929/",

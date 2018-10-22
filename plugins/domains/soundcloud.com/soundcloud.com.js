@@ -2,6 +2,8 @@ var $ = require('cheerio');
 
 module.exports = {
 
+    provides: '__allow_soundcloud_meta',
+
     mixins: [
         "oembed-title",
         "oembed-site",
@@ -34,17 +36,23 @@ module.exports = {
                 href = href.replace('visual=false', 'visual=true');
             }
 
-            links.push({
+            var player = {
                 href: href,
                 type: CONFIG.T.text_html,
-                rel: [CONFIG.R.player, CONFIG.R.html5],
-                autoplay: "auto_play=true",
+                rel: [CONFIG.R.player, CONFIG.R.audio, CONFIG.R.html5],                
                 height: /visual=false/.test(href) ? 114 : oembed.height,
                 "min-width": oembed.width
-            });            
+            };
+
+            // skip click-to-play card with ?iframely=less
+            if (!options.getProviderOptions(CONFIG.O.compact, false) || (options.getProviderOptions(CONFIG.O.compact, false) && options.getProviderOptions('soundcloud.old_player', false))) {
+                player.autoplay = "auto_play=true";
+            }
+
+            links.push(player);
         }
 
-        if (oembed.thumbnail_url) {
+        if (oembed.thumbnail_url && !/\/images\/fb_placeholder\.png/.test(oembed.thumbnail_url)) {
             links.push({
                 href: oembed.thumbnail_url.replace('http:',''),
                 type: CONFIG.T.image,
@@ -57,7 +65,16 @@ module.exports = {
         return links;
     },
 
-    tests: [
+    getData: function (url, oembed) {
+
+        if (!/w\.soundcloud\.com/i.test(url) && (!oembed.thumbnail_url || /\/images\/fb_placeholder\.png/.test(oembed.thumbnail_url))) {
+            return {
+                __allow_soundcloud_meta: true
+            }
+        }
+    },
+
+    tests: [{skipMethods: ["getData"]},
         "https://soundcloud.com/posij/sets/posij-28-hz-ep-division",
         {
             skipMixins: [

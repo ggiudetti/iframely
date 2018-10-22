@@ -16,7 +16,7 @@ module.exports = {
     // keep dependency on oEmbed only. Otherwise, there's redirect to relative path for "play.*" and no embeds as a result
     // -- plugin redirect (by "htmlparser") /error/browser-not-supported.php
 
-    getLink: function(oembed) {
+    getLink: function(oembed, options) {
 
         var $container = cheerio('<div>');
 
@@ -30,13 +30,28 @@ module.exports = {
         // if embed code contains <iframe>, return src
         if ($iframe.length == 1) {
 
-            return [{
-                href: $iframe.attr('src'),
+            var src = $iframe.attr('src');
+
+            // configure as `theme: 'white'`
+            if (options.getProviderOptions('spotify.theme')) {
+                src += (src.indexOf ('?') == -1 ? '?' : '&') + 'theme=' + options.getProviderOptions('spotify.theme');
+            }
+
+            var horizontal_player = options.getProviderOptions(CONFIG.O.compact, false) || (/\/track/i.test(src) && (options.getProviderOptions('players.horizontal', false) || options.getProviderOptions('soundcloud.old_player', false) || options.getProviderOptions('bandcamp.small_player', false)));
+
+            var player = {
+                href: src,
                 type: CONFIG.T.text_html,
-                rel: [CONFIG.R.player, CONFIG.R.ssl, CONFIG.R.html5],
-                height: oembed.height || 80
-            }, {
-                href: 'https://d2c87l0yth4zbw-2.global.ssl.fastly.net/i/_global/touch-icon-114.png',
+                rel: [CONFIG.R.player, CONFIG.R.audio, CONFIG.R.ssl, CONFIG.R.html5],
+                height: horizontal_player ? 80 : (oembed.height || 300)
+            };
+
+            if (/album|playlist/.test(src)) {
+                player.rel.push(CONFIG.R.playlist);
+            }
+
+            return [player, {
+                href: 'https://open.scdn.co/static/images/touch-icon-114.png',
                 type: CONFIG.T.image,
                 rel: CONFIG.R.icon
                 // no sizes - let's validate it.

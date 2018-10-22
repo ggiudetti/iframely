@@ -78,7 +78,7 @@ module.exports = {
 
             return {
                 href: href,
-                rel: [CONFIG.R.player, CONFIG.R.html5],
+                rel: [CONFIG.R.player, CONFIG.R.audio, CONFIG.R.html5],
                 type: CONFIG.T.text_html,
                 media: media
             };
@@ -98,7 +98,6 @@ module.exports = {
         "http://music.zackhemsey.com/track/dont-get-in-my-way",
         "http://yancyderon.com/album/the-difference-sp",
         "http://music.freddiejoachim.com/album/begonia",
-        "http://radiojuicy.com/album/rio",
         "http://music.freddiejoachim.com/album/patiently",
         "https://decembersongs.bandcamp.com/",
         "http://sonsofoflaherty.bandcamp.com/album/misc-songs",
